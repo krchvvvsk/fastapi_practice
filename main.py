@@ -1,4 +1,5 @@
 from fastapi import FastAPI,Query,Path
+from pydantic import BaseModel,Field
 
 app = FastAPI()
 
@@ -32,3 +33,20 @@ def get_product(product_id: int=Path(ge=1,description="Unique product identifier
         "product_id":product_id,
         "limit":limit
     }
+
+
+class Product(BaseModel):
+    name: str = Field(min_length=1)
+    price: float = Field(gt=0)
+    quantity: int = Field(ge=0)
+        
+
+@app.post('/products',status_code=201)
+def post_product(product: Product):
+    return {
+        "name":product.name,
+        'price':product.price,
+        'quantity':product.quantity
+    }
+
+
