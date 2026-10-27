@@ -1,5 +1,5 @@
 from fastapi import FastAPI,Query,Path
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,Field,field_validator
 
 app = FastAPI()
 
@@ -37,6 +37,15 @@ def get_product(product_id: int=Path(ge=1,description="Unique product identifier
 
 class Product(BaseModel):
     name: str = Field(min_length=1)
+    @field_validator('name')
+    @classmethod
+    def space_validator(cls,name):
+        name = name.strip()
+        if len(name) == 0:
+            raise ValueError("Invalid name")
+        
+        return name
+        
     price: float = Field(gt=0)
     quantity: int = Field(ge=0)
         
