@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Query,Path
+from fastapi import FastAPI,Query,Path,HTTPException
 from pydantic import BaseModel,Field,field_validator
 
 app = FastAPI()
@@ -59,3 +59,19 @@ def post_product(product: Product):
     }
 
 
+products = {
+    1: {"name": "Phone", "price": 500},
+    2: {"name": "Laptop", "price": 1200}
+}
+
+
+@app.get('/produts/{produc_id}')
+def product_check(produc_id: int = Path(gt=0)):
+    inStockProduct = products.get(produc_id)
+    if inStockProduct is not None:
+        return inStockProduct
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found"
+        )
