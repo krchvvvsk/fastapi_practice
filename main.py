@@ -75,3 +75,48 @@ def product_check(produc_id: int = Path(gt=0)):
             status_code=404,
             detail="Product not found"
         )
+
+
+
+@app.put('/products/{product_id}')
+
+def update_product(product:Product, product_id:int=Path(gt=0)):
+    is_in_stock = products.get(product_id)
+    if is_in_stock is not None:
+        products[product_id]= product.model_dump()
+        return products[product_id]
+    raise HTTPException(
+        status_code=404,
+        detail="Product not updated"
+    )
+
+
+
+class ProductUpdate(BaseModel):
+    name: str  | None = None
+    
+    @field_validator('name')
+    @classmethod
+    def space_remove(cls,name):
+        if name is None:
+            return name
+        name = name.strip()
+        if len(name) == 0 :
+            raise ValueError('Invalid product name')
+        return name
+        
+    price: float | None = None
+    quantity: int | None = None
+
+
+@app.patch('/products/{product_id}')
+def patch_product(product:ProductUpdate,product_id:int=Path(gt=0)):
+    is_in_stock = products.get(product_id)
+    if is_in_stock is not None:
+        products[product_id].update(product.model_dump(exclude_unset=True))
+        return products[product_id]
+    raise HTTPException(
+        status_code=404,
+        detail="Product not updated"
+    )
+        
